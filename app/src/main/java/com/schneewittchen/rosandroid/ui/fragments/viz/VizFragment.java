@@ -4,7 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
@@ -31,6 +38,7 @@ import com.schneewittchen.rosandroid.model.repositories.rosRepo.node.BaseData;
  * @created on 10.01.20
  * @updated on 21.04.20
  * @modified by Nils Rottmann
+ * @modified by Juan Bravo-Arrabal (jbravo@uma.es)
  */
 public class VizFragment extends Fragment implements DataListener, WidgetChangeListener {
 
@@ -41,12 +49,17 @@ public class VizFragment extends Fragment implements DataListener, WidgetChangeL
     private DrawerLayout drawerLayout;
     private ImageButton optionsOpenButton;
     private SwitchMaterial vizEditModeSwitch;
+    private WebView mywebView;
+    private WebView mywebView2;
 
+    String url;
+    String url2 = "192.168.1.224:8081,190"; //  // Change to your IP address with this format "IP:port,zoom"
+    String scale; // percentage of zoom level that you want to establish
+    String scale2;
 
     public static VizFragment newInstance() {
         return new VizFragment();
     }
-
 
     @Nullable
     @Override
@@ -58,17 +71,49 @@ public class VizFragment extends Fragment implements DataListener, WidgetChangeL
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Button button_us = (Button) view.findViewById(R.id.uscam);
+        Button button_ipcam = (Button) view.findViewById(R.id.ipcam);
+
+        mywebView = (WebView) view.findViewById(R.id.camS);
 
         widgetViewGroupview = view.findViewById(R.id.widget_groupview);
         widgetViewGroupview.setDataListener(this);
         widgetViewGroupview.setOnWidgetDetailsChanged(this);
 
         optionsOpenButton = view.findViewById(R.id.viz_options_open_button);
-
         drawerLayout = view.findViewById(R.id.viz_options_drawer);
         drawerLayout.setScrimColor(getResources().getColor(R.color.drawerFadeColor));
-
         vizEditModeSwitch = view.findViewById(R.id.edit_viz_switch);
+
+        /////////////////////////////////////////////////////
+
+        WebSettings webSettings = mywebView.getSettings();
+
+        webSettings.setJavaScriptEnabled(true);
+
+        mywebView.setWebViewClient(new WebViewClient());
+
+        button_ipcam.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                AutoCompleteTextView input = (AutoCompleteTextView) view.findViewById(R.id.url);
+                url = "192.168.1.200:3131/";  // Change to your IP address
+                url = url + input.getText().toString(); //url,port
+                scale = String.valueOf(180); //zoom
+                mywebView.setInitialScale(Integer.parseInt(scale));
+                mywebView.loadUrl(url);
+            }
+        });
+
+        button_us.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                String[] separated = url2.split(",");
+                url2 = separated[0];
+                scale2 = separated[1];
+                mywebView.setInitialScale(Integer.parseInt(scale2));
+                mywebView.loadUrl(url2);
+            }
+        });
     }
 
     @Override
@@ -101,10 +146,14 @@ public class VizFragment extends Fragment implements DataListener, WidgetChangeL
     @Override
     public void onNewWidgetData(BaseData data) {
         mViewModel.publishData(data);
+
     }
 
     @Override
     public void onWidgetDetailsChanged(BaseEntity widgetEntity) {
         mViewModel.updateWidget(widgetEntity);
+
+
     }
 }
+
