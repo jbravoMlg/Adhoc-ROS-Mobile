@@ -43,7 +43,7 @@ The IoCA architecture for robotic manipulators and the result of using this app 
 <p/>
 
 <p align="center">
-    <img src="images/mqttM.png" alt="Custom Master Chooser" width="450" />
+    <img src="images/mqttM.png" alt="Custom Master Chooser" width="120" />
 <p/>
 
 
